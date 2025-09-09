@@ -620,6 +620,7 @@
 
 
 
+//steps and add ingrediend fully working
 
 import React, { useState, useEffect } from "react";
 import API, { setAuthToken } from "../api/api";
@@ -629,7 +630,6 @@ export default function AddRecipe() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if we have a recipe passed from edit
   const existingRecipe = location.state?.recipe;
 
   const [formData, setFormData] = useState({
@@ -639,14 +639,15 @@ export default function AddRecipe() {
     cook_time: existingRecipe?.cook_time || "",
     difficulty: existingRecipe?.difficulty || "",
     image_url: existingRecipe?.image_url || "",
-    ingredients: existingRecipe?.ingredients || [], // Array of { name, quantity, unit_id, ingredient_id }
+    ingredients: existingRecipe?.ingredients || [],
+    steps: existingRecipe?.steps || [],
   });
 
   const [newIngredient, setNewIngredient] = useState({ name: "", quantity: "", unit_id: "" });
+  const [newStep, setNewStep] = useState("");
   const [cuisines, setCuisines] = useState([]);
   const [units, setUnits] = useState([]);
 
-  // Fetch cuisines and units
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -690,20 +691,38 @@ export default function AddRecipe() {
     setFormData({ ...formData, ingredients: updated });
   };
 
+  const addStep = () => {
+    if (!newStep.trim()) return alert("Step instruction cannot be empty");
+
+    setFormData({
+      ...formData,
+      steps: [...formData.steps, { step_number: formData.steps.length + 1, instruction: newStep }],
+    });
+
+    setNewStep("");
+  };
+
+  const removeStep = (index) => {
+    const updated = formData.steps
+      .filter((_, i) => i !== index)
+      .map((s, idx) => ({ step_number: idx + 1, instruction: s.instruction }));
+
+    setFormData({ ...formData, steps: updated });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.ingredients.length) return alert("Add at least one ingredient");
+    if (!formData.steps.length) return alert("Add at least one step");
 
     try {
       const token = localStorage.getItem("token");
       setAuthToken(token);
 
       if (existingRecipe) {
-        // Edit recipe
         await API.put(`/recipes/${existingRecipe.recipe_id}`, formData);
         alert("Recipe updated successfully!");
       } else {
-        // Add new recipe
         await API.post("/recipes", formData);
         alert("Recipe added successfully!");
       }
@@ -784,7 +803,7 @@ export default function AddRecipe() {
           className="w-full mb-6 p-3 border rounded"
         />
 
-        {/* Ingredients Section */}
+        {/* Ingredients */}
         <div className="mb-6">
           <h3 className="text-xl font-semibold mb-2">Ingredients</h3>
 
@@ -832,7 +851,6 @@ export default function AddRecipe() {
             </div>
           ))}
 
-          {/* New Ingredient Inline Add */}
           <div className="flex gap-2 mt-2">
             <input
               type="text"
@@ -866,6 +884,45 @@ export default function AddRecipe() {
               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
               Add
+            </button>
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div className="mb-6">
+          <h3 className="text-xl font-semibold mb-2">Steps</h3>
+
+          {formData.steps.map((step, index) => (
+            <div key={index} className="flex gap-2 mb-2 items-center">
+              <textarea
+                className="flex-1 p-2 border rounded"
+                value={step.instruction}
+                readOnly
+              />
+              <button
+                type="button"
+                className="bg-red-500 text-white px-3 rounded hover:bg-red-600"
+                onClick={() => removeStep(index)}
+              >
+                X
+              </button>
+            </div>
+          ))}
+
+          <div className="flex gap-2 mt-2">
+            <input
+              type="text"
+              placeholder="Step Instruction"
+              value={newStep}
+              onChange={(e) => setNewStep(e.target.value)}
+              className="flex-1 p-2 border rounded"
+            />
+            <button
+              type="button"
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              onClick={addStep}
+            >
+              Add Step
             </button>
           </div>
         </div>
