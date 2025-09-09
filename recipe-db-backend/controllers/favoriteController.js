@@ -57,3 +57,38 @@ exports.getFavoritesByUserId = (req, res) => {
         return res.json(result);
     });
 };
+
+// Remove from favorites
+exports.removeFavorite = (req, res) => {
+  try {
+    const user_id = req.user.user_id; // Correct from auth middleware
+    const { recipe_id } = req.body;
+
+    console.log("Remove favorite request:", { user_id, recipe_id });
+
+    if (!recipe_id) {
+      console.log("No recipe_id provided");
+      return res.status(400).json({ message: "recipe_id is required" });
+    }
+
+    const query = `DELETE FROM Favorite WHERE user_id = ? AND recipe_id = ?`;
+
+    db.query(query, [user_id, recipe_id], (err, result) => {
+      if (err) {
+        console.error("Remove favorite DB error:", err);
+        return res.status(500).json({ error: err });
+      }
+
+      console.log("DB result:", result);
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: "Favorite not found" });
+      }
+
+      res.json({ message: "Removed from favorites" });
+    });
+  } catch (err) {
+    console.error("Unexpected error in removeFavorite:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
