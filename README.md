@@ -36,70 +36,66 @@ Built with **React (Vite + TailwindCSS)** on the frontend and **Node.js + Expres
 ## ⚡ Installation & Setup
 
 ### 1. Clone Repository
-bash
-
-git clone https://github.com/your-username/smart-recipe-app.git
-
-cd smart-recipe-app
+- bash
+- git clone https://github.com/your-username/smart-recipe-app.git
+- cd smart-recipe-app
 
 ### 2. Backend Setup
-
-bash
-
-Copy code
-
-cd backend
-
-npm install
+- bash
+- Copy code
+- cd backend
+- npm install
 
 Create a .env file inside backend/:
+- env
+- Copy code
+- PORT=5000
+- DB_HOST=localhost
+- DB_USER=root
+- DB_PASSWORD=yourpassword
+- DB_NAME=recipe_db
+- JWT_SECRET=your_jwt_secret
 
-env
-Copy code
-PORT=5000
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=yourpassword
-DB_NAME=recipe_db
-JWT_SECRET=your_jwt_secret
 Run backend:
+- bash
+- Copy code
+- npm start
 
-bash
-Copy code
-npm start
-3. Frontend Setup
-bash
-Copy code
-cd frontend
-npm install
+### 3. Frontend Setup
+- bash
+- Copy code
+- cd frontend
+- npm install
+
 Run frontend:
-
-bash
-Copy code
-npm run dev
+- bash
+- Copy code
+- npm run dev
 
 
 ### 📸 Screenshots
 
-Home Page
+- Home Page
 
-[!image]()
+![Recipe Add Page](https://github.com/NikhilPatil5720/Smart-Recipe-DBMS/blob/main/RecipeHomepage.png?raw=true)
 
-Add Recipe
+- Add Recipe
 
-Favorites
+![Recipe Add Page](https://github.com/NikhilPatil5720/Smart-Recipe-DBMS/blob/main/RecipeAddpage.png?raw=true)
 
-🔮 Future Improvements
-📌 Meal planning feature
+- Favorites
 
-📊 Nutritional analysis per recipe
+![Recipe Add Page](https://github.com/NikhilPatil5720/Smart-Recipe-DBMS/blob/main/RecipeFavpage.png?raw=true)
 
-👥 Social features (share recipes with friends)
+- Detail Page
 
-📷 Image upload instead of URL
+  ![Recipe Add Page](https://github.com/NikhilPatil5720/Smart-Recipe-DBMS/blob/main/RecipeDetailpage.png?raw=true)
+
 
 🤝 Contributing
 Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to change.
 
+
+Made with 💖 By Nikhil
 
 
