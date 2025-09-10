@@ -803,6 +803,21 @@ export default function AddRecipe() {
           className="w-full mb-6 p-3 border rounded"
         />
 
+
+        <select
+  name="dietary_type"
+  value={formData.dietary_type || ""}
+  onChange={handleChange}
+  className="w-full mb-4 p-3 border rounded"
+  required
+>
+  <option value="">Select Dietary Preference</option>
+  <option value="Vegan">Vegan</option>
+  <option value="Vegetarian">Vegetarian</option>
+  <option value="Gluten-Free">Gluten-Free</option>
+  <option value="Non-Vegetarian">Non-Vegetarian</option>
+</select>
+
         {/* Ingredients */}
         <div className="mb-6">
           <h3 className="text-xl font-semibold mb-2">Ingredients</h3>

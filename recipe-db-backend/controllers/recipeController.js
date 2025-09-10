@@ -2,30 +2,111 @@ const db = require('../models/db');
 
 // ➤ Add New Recipe
 
+// exports.addRecipe = (req, res) => {
+
+//     const user_id = req.userId;
+//     const { title, description, cuisine_id, servings, cook_time,dietary_type, difficulty, image_url, ingredients = [], steps = [] } = req.body;
+
+//     const recipeQuery = `
+//         INSERT INTO Recipe (user_id, title, description, cuisine_id,dietary_type, servings, cook_time, difficulty, image_url)
+//         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? )
+//     `;
+
+//     db.query(recipeQuery,
+//         [user_id, title, description, cuisine_id, servings || 1, cook_time,dietary_type, difficulty, image_url],
+//         async (err, result) => {
+//             if (err) return res.status(500).json({ error: err });
+
+//             const recipe_id = result.insertId;
+
+//             try {
+//                 // Handle ingredients
+//                 for (let i = 0; i < ingredients.length; i++) {
+//                     const ing = ingredients[i];
+//                     let ingredient_id;
+
+//                     // Check if ingredient exists
+//                     const [existing] = await new Promise((resolve, reject) => {
+//                         db.query(`SELECT ingredient_id FROM Ingredient WHERE name = ?`, [ing.name], (err, result) => {
+//                             if (err) reject(err);
+//                             else resolve(result);
+//                         });
+//                     });
+
+//                     if (existing && existing.length > 0) {
+//                         ingredient_id = existing[0].ingredient_id;
+//                     } else {
+//                         // Insert new ingredient
+//                         const insertResult = await new Promise((resolve, reject) => {
+//                             db.query(`INSERT INTO Ingredient (name) VALUES (?)`, [ing.name], (err, result) => {
+//                                 if (err) reject(err);
+//                                 else resolve(result);
+//                             });
+//                         });
+//                         ingredient_id = insertResult.insertId;
+//                     }
+
+//                     // Insert into RecipeIngredient
+//                     await new Promise((resolve, reject) => {
+//                         db.query(
+//                             `INSERT INTO RecipeIngredient (recipe_id, ingredient_id, unit_id, quantity, sequence_no) VALUES (?, ?, ?, ?, ?)`,
+//                             [recipe_id, ingredient_id, ing.unit_id || null, ing.quantity, i + 1],
+//                             (err) => err ? reject(err) : resolve()
+//                         );
+//                     });
+//                 }
+
+//                 // Handle steps
+//                 for (let i = 0; i < steps.length; i++) {
+//                     const step = steps[i];
+//                     await new Promise((resolve, reject) => {
+//                         db.query(
+//                             `INSERT INTO Step (recipe_id, step_number, instruction) VALUES (?, ?, ?)`,
+//                             [recipe_id, step.step_number, step.instruction],
+//                             (err) => err ? reject(err) : resolve()
+//                         );
+//                     });
+//                 }
+
+//                 res.status(201).json({ message: "Recipe and ingredients added successfully", recipe_id });
+//             } catch (error) {
+//                 res.status(500).json({ error });
+//             }
+//         }
+//     );
+// };
+
+
 exports.addRecipe = (req, res) => {
+    console.log('Received Request Body:', req.body);
 
     const user_id = req.userId;
-    const { title, description, cuisine_id, servings, cook_time, difficulty, image_url, ingredients = [], steps = [] } = req.body;
+    const { title, description, cuisine_id, servings, cook_time, dietary_type, difficulty, image_url, ingredients = [], steps = [] } = req.body;
 
     const recipeQuery = `
-        INSERT INTO Recipe (user_id, title, description, cuisine_id, servings, cook_time, difficulty, image_url)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Recipe (user_id, title, description, cuisine_id, dietary_type, servings, cook_time, difficulty, image_url)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    db.query(recipeQuery,
-        [user_id, title, description, cuisine_id, servings || 1, cook_time, difficulty, image_url],
+    db.query(
+        recipeQuery,
+        [user_id, title, description, cuisine_id, dietary_type, servings || 1, cook_time, difficulty, image_url],
         async (err, result) => {
-            if (err) return res.status(500).json({ error: err });
+            if (err) {
+                console.error('Error inserting Recipe:', err);
+                return res.status(500).json({ error: err.message });
+            }
 
             const recipe_id = result.insertId;
+            console.log('Inserted Recipe ID:', recipe_id);
 
             try {
-                // Handle ingredients
                 for (let i = 0; i < ingredients.length; i++) {
                     const ing = ingredients[i];
                     let ingredient_id;
 
-                    // Check if ingredient exists
+                    console.log(`Processing Ingredient #${i + 1}:`, ing);
+
                     const [existing] = await new Promise((resolve, reject) => {
                         db.query(`SELECT ingredient_id FROM Ingredient WHERE name = ?`, [ing.name], (err, result) => {
                             if (err) reject(err);
@@ -35,8 +116,8 @@ exports.addRecipe = (req, res) => {
 
                     if (existing && existing.length > 0) {
                         ingredient_id = existing[0].ingredient_id;
+                        console.log(`Found existing Ingredient ID: ${ingredient_id}`);
                     } else {
-                        // Insert new ingredient
                         const insertResult = await new Promise((resolve, reject) => {
                             db.query(`INSERT INTO Ingredient (name) VALUES (?)`, [ing.name], (err, result) => {
                                 if (err) reject(err);
@@ -44,9 +125,9 @@ exports.addRecipe = (req, res) => {
                             });
                         });
                         ingredient_id = insertResult.insertId;
+                        console.log(`Inserted new Ingredient ID: ${ingredient_id}`);
                     }
 
-                    // Insert into RecipeIngredient
                     await new Promise((resolve, reject) => {
                         db.query(
                             `INSERT INTO RecipeIngredient (recipe_id, ingredient_id, unit_id, quantity, sequence_no) VALUES (?, ?, ?, ?, ?)`,
@@ -54,11 +135,14 @@ exports.addRecipe = (req, res) => {
                             (err) => err ? reject(err) : resolve()
                         );
                     });
+
+                    console.log(`Linked ingredient to recipe`);
                 }
 
-                // Handle steps
                 for (let i = 0; i < steps.length; i++) {
                     const step = steps[i];
+                    console.log(`Processing Step #${i + 1}:`, step);
+
                     await new Promise((resolve, reject) => {
                         db.query(
                             `INSERT INTO Step (recipe_id, step_number, instruction) VALUES (?, ?, ?)`,
@@ -66,11 +150,15 @@ exports.addRecipe = (req, res) => {
                             (err) => err ? reject(err) : resolve()
                         );
                     });
+
+                    console.log(`Inserted Step #${i + 1}`);
                 }
 
-                res.status(201).json({ message: "Recipe and ingredients added successfully", recipe_id });
+                console.log('Recipe, ingredients, and steps inserted successfully');
+                res.status(201).json({ message: "Recipe and related data added successfully", recipe_id });
             } catch (error) {
-                res.status(500).json({ error });
+                console.error('Detailed Insert Error:', error);
+                res.status(500).json({ error: error.message });
             }
         }
     );
