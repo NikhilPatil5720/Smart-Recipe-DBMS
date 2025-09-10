@@ -622,6 +622,345 @@
 
 //steps and add ingrediend fully working
 
+// import React, { useState, useEffect } from "react";
+// import API, { setAuthToken } from "../api/api";
+// import { useNavigate, useLocation } from "react-router-dom";
+
+// export default function AddRecipe() {
+//   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   const existingRecipe = location.state?.recipe;
+
+//   const [formData, setFormData] = useState({
+//     title: existingRecipe?.title || "",
+//     description: existingRecipe?.description || "",
+//     cuisine_id: existingRecipe?.cuisine_id || "",
+//     cook_time: existingRecipe?.cook_time || "",
+//     difficulty: existingRecipe?.difficulty || "",
+//     image_url: existingRecipe?.image_url || "",
+//     ingredients: existingRecipe?.ingredients || [],
+//     steps: existingRecipe?.steps || [],
+//   });
+
+//   const [newIngredient, setNewIngredient] = useState({ name: "", quantity: "", unit_id: "" });
+//   const [newStep, setNewStep] = useState("");
+//   const [cuisines, setCuisines] = useState([]);
+//   const [units, setUnits] = useState([]);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const [cuisinesRes, unitsRes] = await Promise.all([
+//           API.get("/cuisines"),
+//           API.get("/units"),
+//         ]);
+//         setCuisines(cuisinesRes.data);
+//         setUnits(unitsRes.data);
+//       } catch (err) {
+//         console.error("Fetch error:", err);
+//       }
+//     };
+//     fetchData();
+//   }, []);
+
+//   const handleChange = (e) => {
+//     setFormData({ ...formData, [e.target.name]: e.target.value });
+//   };
+
+//   const handleIngredientChange = (index, e) => {
+//     const updated = [...formData.ingredients];
+//     updated[index][e.target.name] = e.target.value;
+//     setFormData({ ...formData, ingredients: updated });
+//   };
+
+//   const addIngredientToList = () => {
+//     if (!newIngredient.name || !newIngredient.quantity || !newIngredient.unit_id) {
+//       return alert("Please enter ingredient name, quantity, and unit");
+//     }
+
+//     setFormData({
+//       ...formData,
+//       ingredients: [...formData.ingredients, { ...newIngredient }],
+//     });
+//     setNewIngredient({ name: "", quantity: "", unit_id: "" });
+//   };
+
+//   const removeIngredientField = (index) => {
+//     const updated = formData.ingredients.filter((_, i) => i !== index);
+//     setFormData({ ...formData, ingredients: updated });
+//   };
+
+//   const addStep = () => {
+//     if (!newStep.trim()) return alert("Step instruction cannot be empty");
+
+//     setFormData({
+//       ...formData,
+//       steps: [...formData.steps, { step_number: formData.steps.length + 1, instruction: newStep }],
+//     });
+
+//     setNewStep("");
+//   };
+
+//   const removeStep = (index) => {
+//     const updated = formData.steps
+//       .filter((_, i) => i !== index)
+//       .map((s, idx) => ({ step_number: idx + 1, instruction: s.instruction }));
+
+//     setFormData({ ...formData, steps: updated });
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!formData.ingredients.length) return alert("Add at least one ingredient");
+//     if (!formData.steps.length) return alert("Add at least one step");
+
+//     try {
+//       const token = localStorage.getItem("token");
+//       setAuthToken(token);
+
+//       if (existingRecipe) {
+//         await API.put(`/recipes/${existingRecipe.recipe_id}`, formData);
+//         alert("Recipe updated successfully!");
+//       } else {
+//         await API.post("/recipes", formData);
+//         alert("Recipe added successfully!");
+//       }
+
+//       navigate("/");
+//     } catch (err) {
+//       console.error("Recipe error:", err);
+//       alert(err.response?.data?.message || "Failed to save recipe");
+//     }
+//   };
+
+//   return (
+//     <div className="p-6 flex justify-center items-start min-h-screen bg-gray-100">
+//       <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-lg">
+//         <h2 className="text-2xl font-bold mb-6 text-center">
+//           {existingRecipe ? "Edit Recipe" : "Add New Recipe"}
+//         </h2>
+
+//         {/* Recipe Details */}
+//         <input
+//           type="text"
+//           name="title"
+//           placeholder="Recipe Title"
+//           value={formData.title}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         />
+//         <textarea
+//           name="description"
+//           placeholder="Description"
+//           value={formData.description}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         />
+//         <select
+//           name="cuisine_id"
+//           value={formData.cuisine_id}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         >
+//           <option value="">Select Cuisine</option>
+//           {cuisines.map((c) => (
+//             <option key={c.cuisine_id} value={c.cuisine_id}>
+//               {c.name}
+//             </option>
+//           ))}
+//         </select>
+//         <input
+//           type="number"
+//           name="cook_time"
+//           placeholder="Cook Time (minutes)"
+//           value={formData.cook_time}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         />
+//         <select
+//           name="difficulty"
+//           value={formData.difficulty}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         >
+//           <option value="">Select Difficulty</option>
+//           <option value="Easy">Easy</option>
+//           <option value="Medium">Medium</option>
+//           <option value="Hard">Hard</option>
+//         </select>
+//         <input
+//           type="text"
+//           name="image_url"
+//           placeholder="Image URL (optional)"
+//           value={formData.image_url}
+//           onChange={handleChange}
+//           className="w-full mb-6 p-3 border rounded"
+//         />
+
+
+//         <select
+//   name="dietary_type"
+//   value={formData.dietary_type || ""}
+//   onChange={handleChange}
+//   className="w-full mb-4 p-3 border rounded"
+//   required
+// >
+//   <option value="">Select Dietary Preference</option>
+//   <option value="Vegan">Vegan</option>
+//   <option value="Vegetarian">Vegetarian</option>
+//   <option value="Gluten-Free">Gluten-Free</option>
+//   <option value="Non-Vegetarian">Non-Vegetarian</option>
+// </select>
+
+//         {/* Ingredients */}
+//         <div className="mb-6">
+//           <h3 className="text-xl font-semibold mb-2">Ingredients</h3>
+
+//           {formData.ingredients.map((ing, index) => (
+//             <div key={index} className="flex gap-2 mb-2">
+//               <input
+//                 type="text"
+//                 name="name"
+//                 placeholder="Ingredient Name"
+//                 value={ing.name}
+//                 onChange={(e) => handleIngredientChange(index, e)}
+//                 className="flex-1 p-2 border rounded"
+//                 required
+//               />
+//               <input
+//                 type="text"
+//                 name="quantity"
+//                 placeholder="Quantity"
+//                 value={ing.quantity}
+//                 onChange={(e) => handleIngredientChange(index, e)}
+//                 className="flex-1 p-2 border rounded"
+//                 required
+//               />
+//               <select
+//                 name="unit_id"
+//                 value={ing.unit_id}
+//                 onChange={(e) => handleIngredientChange(index, e)}
+//                 className="flex-1 p-2 border rounded"
+//                 required
+//               >
+//                 <option value="">Select Unit</option>
+//                 {units.map((unit) => (
+//                   <option key={unit.unit_id} value={unit.unit_id}>
+//                     {unit.name}
+//                   </option>
+//                 ))}
+//               </select>
+//               <button
+//                 type="button"
+//                 onClick={() => removeIngredientField(index)}
+//                 className="bg-red-500 text-white px-3 rounded hover:bg-red-600"
+//               >
+//                 X
+//               </button>
+//             </div>
+//           ))}
+
+//           <div className="flex gap-2 mt-2">
+//             <input
+//               type="text"
+//               placeholder="New Ingredient Name"
+//               value={newIngredient.name}
+//               onChange={(e) => setNewIngredient({ ...newIngredient, name: e.target.value })}
+//               className="flex-1 p-2 border rounded"
+//             />
+//             <input
+//               type="text"
+//               placeholder="Quantity"
+//               value={newIngredient.quantity}
+//               onChange={(e) => setNewIngredient({ ...newIngredient, quantity: e.target.value })}
+//               className="flex-1 p-2 border rounded"
+//             />
+//             <select
+//               value={newIngredient.unit_id}
+//               onChange={(e) => setNewIngredient({ ...newIngredient, unit_id: e.target.value })}
+//               className="flex-1 p-2 border rounded"
+//             >
+//               <option value="">Select Unit</option>
+//               {units.map((unit) => (
+//                 <option key={unit.unit_id} value={unit.unit_id}>
+//                   {unit.name}
+//                 </option>
+//               ))}
+//             </select>
+//             <button
+//               type="button"
+//               onClick={addIngredientToList}
+//               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+//             >
+//               Add
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* Steps */}
+//         <div className="mb-6">
+//           <h3 className="text-xl font-semibold mb-2">Steps</h3>
+
+//           {formData.steps.map((step, index) => (
+//             <div key={index} className="flex gap-2 mb-2 items-center">
+//               <textarea
+//                 className="flex-1 p-2 border rounded"
+//                 value={step.instruction}
+//                 readOnly
+//               />
+//               <button
+//                 type="button"
+//                 className="bg-red-500 text-white px-3 rounded hover:bg-red-600"
+//                 onClick={() => removeStep(index)}
+//               >
+//                 X
+//               </button>
+//             </div>
+//           ))}
+
+//           <div className="flex gap-2 mt-2">
+//             <input
+//               type="text"
+//               placeholder="Step Instruction"
+//               value={newStep}
+//               onChange={(e) => setNewStep(e.target.value)}
+//               className="flex-1 p-2 border rounded"
+//             />
+//             <button
+//               type="button"
+//               className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+//               onClick={addStep}
+//             >
+//               Add Step
+//             </button>
+//           </div>
+//         </div>
+
+//         <button
+//           type="submit"
+//           className="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600"
+//         >
+//           {existingRecipe ? "Update Recipe" : "Add Recipe"}
+//         </button>
+//       </form>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+//ui changes only
+
 import React, { useState, useEffect } from "react";
 import API, { setAuthToken } from "../api/api";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -641,6 +980,7 @@ export default function AddRecipe() {
     image_url: existingRecipe?.image_url || "",
     ingredients: existingRecipe?.ingredients || [],
     steps: existingRecipe?.steps || [],
+    dietary_type: existingRecipe?.dietary_type || "",
   });
 
   const [newIngredient, setNewIngredient] = useState({ name: "", quantity: "", unit_id: "" });
@@ -651,10 +991,7 @@ export default function AddRecipe() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [cuisinesRes, unitsRes] = await Promise.all([
-          API.get("/cuisines"),
-          API.get("/units"),
-        ]);
+        const [cuisinesRes, unitsRes] = await Promise.all([API.get("/cuisines"), API.get("/units")]);
         setCuisines(cuisinesRes.data);
         setUnits(unitsRes.data);
       } catch (err) {
@@ -664,10 +1001,7 @@ export default function AddRecipe() {
     fetchData();
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleIngredientChange = (index, e) => {
     const updated = [...formData.ingredients];
     updated[index][e.target.name] = e.target.value;
@@ -678,11 +1012,7 @@ export default function AddRecipe() {
     if (!newIngredient.name || !newIngredient.quantity || !newIngredient.unit_id) {
       return alert("Please enter ingredient name, quantity, and unit");
     }
-
-    setFormData({
-      ...formData,
-      ingredients: [...formData.ingredients, { ...newIngredient }],
-    });
+    setFormData({ ...formData, ingredients: [...formData.ingredients, { ...newIngredient }] });
     setNewIngredient({ name: "", quantity: "", unit_id: "" });
   };
 
@@ -693,12 +1023,10 @@ export default function AddRecipe() {
 
   const addStep = () => {
     if (!newStep.trim()) return alert("Step instruction cannot be empty");
-
     setFormData({
       ...formData,
       steps: [...formData.steps, { step_number: formData.steps.length + 1, instruction: newStep }],
     });
-
     setNewStep("");
   };
 
@@ -706,7 +1034,6 @@ export default function AddRecipe() {
     const updated = formData.steps
       .filter((_, i) => i !== index)
       .map((s, idx) => ({ step_number: idx + 1, instruction: s.instruction }));
-
     setFormData({ ...formData, steps: updated });
   };
 
@@ -726,7 +1053,6 @@ export default function AddRecipe() {
         await API.post("/recipes", formData);
         alert("Recipe added successfully!");
       }
-
       navigate("/");
     } catch (err) {
       console.error("Recipe error:", err);
@@ -735,102 +1061,109 @@ export default function AddRecipe() {
   };
 
   return (
-    <div className="p-6 flex justify-center items-start min-h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex justify-center py-10 px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-2xl rounded-3xl w-full max-w-2xl p-8 space-y-6"
+      >
+        <h2 className="text-3xl font-bold text-indigo-600 text-center">
           {existingRecipe ? "Edit Recipe" : "Add New Recipe"}
         </h2>
 
         {/* Recipe Details */}
-        <input
-          type="text"
-          name="title"
-          placeholder="Recipe Title"
-          value={formData.title}
-          onChange={handleChange}
-          className="w-full mb-4 p-3 border rounded"
-          required
-        />
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          className="w-full mb-4 p-3 border rounded"
-          required
-        />
-        <select
-          name="cuisine_id"
-          value={formData.cuisine_id}
-          onChange={handleChange}
-          className="w-full mb-4 p-3 border rounded"
-          required
-        >
-          <option value="">Select Cuisine</option>
-          {cuisines.map((c) => (
-            <option key={c.cuisine_id} value={c.cuisine_id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          name="cook_time"
-          placeholder="Cook Time (minutes)"
-          value={formData.cook_time}
-          onChange={handleChange}
-          className="w-full mb-4 p-3 border rounded"
-          required
-        />
-        <select
-          name="difficulty"
-          value={formData.difficulty}
-          onChange={handleChange}
-          className="w-full mb-4 p-3 border rounded"
-          required
-        >
-          <option value="">Select Difficulty</option>
-          <option value="Easy">Easy</option>
-          <option value="Medium">Medium</option>
-          <option value="Hard">Hard</option>
-        </select>
-        <input
-          type="text"
-          name="image_url"
-          placeholder="Image URL (optional)"
-          value={formData.image_url}
-          onChange={handleChange}
-          className="w-full mb-6 p-3 border rounded"
-        />
+        <div className="space-y-4">
+          <input
+            type="text"
+            name="title"
+            placeholder="Recipe Title"
+            value={formData.title}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+            required
+          />
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={formData.description}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+            rows={3}
+            required
+          />
+          <div className="flex gap-4 flex-wrap">
+            <select
+              name="cuisine_id"
+              value={formData.cuisine_id}
+              onChange={handleChange}
+              className="flex-1 p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              required
+            >
+              <option value="">Select Cuisine</option>
+              {cuisines.map((c) => (
+                <option key={c.cuisine_id} value={c.cuisine_id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            <input
+              type="number"
+              name="cook_time"
+              placeholder="Cook Time (minutes)"
+              value={formData.cook_time}
+              onChange={handleChange}
+              className="flex-1 p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              required
+            />
+          </div>
+          <div className="flex gap-4 flex-wrap">
+            <select
+              name="difficulty"
+              value={formData.difficulty}
+              onChange={handleChange}
+              className="flex-1 p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              required
+            >
+              <option value="">Select Difficulty</option>
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
+            <select
+              name="dietary_type"
+              value={formData.dietary_type}
+              onChange={handleChange}
+              className="flex-1 p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+              required
+            >
+              <option value="">Select Dietary Preference</option>
+              <option value="Vegan">Vegan</option>
+              <option value="Vegetarian">Vegetarian</option>
+              <option value="Gluten-Free">Gluten-Free</option>
+              <option value="Non-Vegetarian">Non-Vegetarian</option>
+            </select>
+          </div>
+          <input
+            type="text"
+            name="image_url"
+            placeholder="Image URL (optional)"
+            value={formData.image_url}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+          />
+        </div>
 
-
-        <select
-  name="dietary_type"
-  value={formData.dietary_type || ""}
-  onChange={handleChange}
-  className="w-full mb-4 p-3 border rounded"
-  required
->
-  <option value="">Select Dietary Preference</option>
-  <option value="Vegan">Vegan</option>
-  <option value="Vegetarian">Vegetarian</option>
-  <option value="Gluten-Free">Gluten-Free</option>
-  <option value="Non-Vegetarian">Non-Vegetarian</option>
-</select>
-
-        {/* Ingredients */}
-        <div className="mb-6">
-          <h3 className="text-xl font-semibold mb-2">Ingredients</h3>
-
+        {/* Ingredients Section */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-indigo-600">Ingredients</h3>
           {formData.ingredients.map((ing, index) => (
-            <div key={index} className="flex gap-2 mb-2">
+            <div key={index} className="flex gap-2 items-center">
               <input
                 type="text"
                 name="name"
                 placeholder="Ingredient Name"
                 value={ing.name}
                 onChange={(e) => handleIngredientChange(index, e)}
-                className="flex-1 p-2 border rounded"
+                className="flex-1 p-2 border rounded-xl focus:ring-2 focus:ring-green-400 focus:outline-none"
                 required
               />
               <input
@@ -839,14 +1172,14 @@ export default function AddRecipe() {
                 placeholder="Quantity"
                 value={ing.quantity}
                 onChange={(e) => handleIngredientChange(index, e)}
-                className="flex-1 p-2 border rounded"
+                className="flex-1 p-2 border rounded-xl focus:ring-2 focus:ring-green-400 focus:outline-none"
                 required
               />
               <select
                 name="unit_id"
                 value={ing.unit_id}
                 onChange={(e) => handleIngredientChange(index, e)}
-                className="flex-1 p-2 border rounded"
+                className="flex-1 p-2 border rounded-xl focus:ring-2 focus:ring-green-400 focus:outline-none"
                 required
               >
                 <option value="">Select Unit</option>
@@ -859,32 +1192,31 @@ export default function AddRecipe() {
               <button
                 type="button"
                 onClick={() => removeIngredientField(index)}
-                className="bg-red-500 text-white px-3 rounded hover:bg-red-600"
+                className="bg-red-500 text-white px-3 py-1 rounded-xl hover:bg-red-600 transition"
               >
                 X
               </button>
             </div>
           ))}
-
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-2 items-center">
             <input
               type="text"
               placeholder="New Ingredient Name"
               value={newIngredient.name}
               onChange={(e) => setNewIngredient({ ...newIngredient, name: e.target.value })}
-              className="flex-1 p-2 border rounded"
+              className="flex-1 p-2 border rounded-xl focus:ring-2 focus:ring-green-400 focus:outline-none"
             />
             <input
               type="text"
               placeholder="Quantity"
               value={newIngredient.quantity}
               onChange={(e) => setNewIngredient({ ...newIngredient, quantity: e.target.value })}
-              className="flex-1 p-2 border rounded"
+              className="flex-1 p-2 border rounded-xl focus:ring-2 focus:ring-green-400 focus:outline-none"
             />
             <select
               value={newIngredient.unit_id}
               onChange={(e) => setNewIngredient({ ...newIngredient, unit_id: e.target.value })}
-              className="flex-1 p-2 border rounded"
+              className="flex-1 p-2 border rounded-xl focus:ring-2 focus:ring-green-400 focus:outline-none"
             >
               <option value="">Select Unit</option>
               {units.map((unit) => (
@@ -896,46 +1228,44 @@ export default function AddRecipe() {
             <button
               type="button"
               onClick={addIngredientToList}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              className="bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600 transition"
             >
               Add
             </button>
           </div>
         </div>
 
-        {/* Steps */}
-        <div className="mb-6">
-          <h3 className="text-xl font-semibold mb-2">Steps</h3>
-
+        {/* Steps Section */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-indigo-600">Steps</h3>
           {formData.steps.map((step, index) => (
-            <div key={index} className="flex gap-2 mb-2 items-center">
+            <div key={index} className="flex gap-2 items-center">
               <textarea
-                className="flex-1 p-2 border rounded"
+                className="flex-1 p-2 border rounded-xl bg-gray-50 text-gray-700"
                 value={step.instruction}
                 readOnly
               />
               <button
                 type="button"
-                className="bg-red-500 text-white px-3 rounded hover:bg-red-600"
                 onClick={() => removeStep(index)}
+                className="bg-red-500 text-white px-3 py-1 rounded-xl hover:bg-red-600 transition"
               >
                 X
               </button>
             </div>
           ))}
-
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-2 items-center">
             <input
               type="text"
               placeholder="Step Instruction"
               value={newStep}
               onChange={(e) => setNewStep(e.target.value)}
-              className="flex-1 p-2 border rounded"
+              className="flex-1 p-2 border rounded-xl focus:ring-2 focus:ring-green-400 focus:outline-none"
             />
             <button
               type="button"
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
               onClick={addStep}
+              className="bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600 transition"
             >
               Add Step
             </button>
@@ -944,7 +1274,7 @@ export default function AddRecipe() {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600"
+          className="w-full bg-indigo-500 text-white py-3 rounded-xl hover:bg-indigo-600 transition shadow-lg"
         >
           {existingRecipe ? "Update Recipe" : "Add Recipe"}
         </button>
