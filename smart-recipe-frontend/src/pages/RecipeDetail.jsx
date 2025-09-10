@@ -493,6 +493,329 @@
 
 //new schema
 
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import API, { setAuthToken } from "../api/api";
+
+// export default function RecipeDetail() {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+//   const [recipe, setRecipe] = useState(null);
+
+//   useEffect(() => {
+//     const fetchRecipe = async () => {
+//       try {
+//         const res = await API.get(`/recipes/${id}`);
+//         setRecipe(res.data);
+//       } catch (err) {
+//         console.error("Fetch recipe error:", err);
+//         alert("Failed to fetch recipe");
+//       }
+//     };
+//     fetchRecipe();
+//   }, [id]);
+
+//   const handleFavorite = async () => {
+//     try {
+//       const token = localStorage.getItem("token");
+//       if (!token) {
+//         alert("You must be logged in to add favorites");
+//         return;
+//       }
+//       setAuthToken(token);
+//       await API.post(`/favorites/${id}`); // backend expects recipe_id in URL
+//       alert("Added to favorites!");
+//     } catch (err) {
+//       console.error("Add favorite error:", err);
+//       alert(err.response?.data?.message || "Failed to add favorite");
+//     }
+//   };
+
+//   const handleDelete = async () => {
+//     if (!window.confirm("Are you sure you want to delete this recipe?")) return;
+//     try {
+//       const token = localStorage.getItem("token");
+//       setAuthToken(token);
+//       await API.delete(`/recipes/${id}`);
+//       alert("Recipe deleted successfully!");
+//       navigate("/");
+//     } catch (err) {
+//       console.error("Delete recipe error:", err);
+//       alert("Failed to delete recipe");
+//     }
+//   };
+
+//   const handleEdit = () => {
+//     navigate(`/edit-recipe/${id}`);
+//   };
+
+//   if (!recipe) return <div className="p-6">Loading...</div>;
+
+//   const ingredients = recipe.ingredients || [];
+
+//   return (
+//     <div className="p-6 max-w-3xl mx-auto bg-gray-100 min-h-screen">
+//       <div className="bg-white p-6 rounded shadow-md">
+//         <h1 className="text-3xl font-bold mb-4">{recipe.title}</h1>
+//         <img
+//           src={recipe.image_url || "https://via.placeholder.com/600x400"}
+//           alt={recipe.title}
+//           className="w-full h-80 object-cover rounded mb-4"
+//         />
+//         <p className="mb-2"><strong>Cuisine:</strong> {recipe.cuisine_name || "N/A"}</p>
+//         {recipe.tags && recipe.tags.length > 0 && (
+//           <p className="mb-2">
+//             <strong>Diet:</strong> {recipe.tags.map(t => t.name).join(", ")}
+//           </p>
+//         )}
+//         <p className="mb-2"><strong>Cook Time:</strong> {recipe.cook_time || 0} mins</p>
+//         <p className="mb-2"><strong>Difficulty:</strong> {recipe.difficulty || "N/A"}</p>
+//         <p className="mb-4">{recipe.description}</p>
+
+//         <div className="flex gap-4 mb-6">
+//           <button onClick={handleFavorite} className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">
+//             Add to Favorites
+//           </button>
+//           <button onClick={handleEdit} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+//             Edit Recipe
+//           </button>
+//           <button onClick={handleDelete} className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">
+//             Delete Recipe
+//           </button>
+//         </div>
+
+//         <h2 className="text-2xl font-bold mb-2">Ingredients</h2>
+//         {ingredients.length > 0 ? (
+//           <ul className="list-disc list-inside mb-4">
+//             {ingredients.map((ing, index) => (
+//               <li key={index}>
+//                 {ing.quantity} {ing.unit_name || ""} - {ing.ingredient_name}
+//               </li>
+//             ))}
+//           </ul>
+//         ) : (
+//           <p>No ingredients added yet.</p>
+//         )}
+
+//         <h2 className="text-2xl font-bold mt-4 mb-2">Steps</h2>
+//         {recipe.steps && recipe.steps.length > 0 ? (
+//           <ol className="list-decimal list-inside mb-4">
+//             {recipe.steps.map((step, index) => (
+//               <li key={index}>{step.instruction}</li>
+//             ))}
+//           </ol>
+//         ) : (
+//           <p>No steps added yet.</p>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+// comment section added and working
+
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import API, { setAuthToken } from "../api/api";
+
+// export default function RecipeDetail() {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+//   const [recipe, setRecipe] = useState(null);
+//   const [comments, setComments] = useState([]);
+//   const [newComment, setNewComment] = useState("");
+
+//   useEffect(() => {
+//     const fetchRecipe = async () => {
+//       try {
+//         const res = await API.get(`/recipes/${id}`);
+//         setRecipe(res.data);
+//       } catch (err) {
+//         console.error("Fetch recipe error:", err);
+//         alert("Failed to fetch recipe");
+//       }
+//     };
+
+//     const fetchComments = async () => {
+//       try {
+//         const res = await API.get(`/comments/${id}`);
+//         setComments(res.data);
+//       } catch (err) {
+//         console.error("Fetch comments error:", err);
+//       }
+//     };
+
+//     fetchRecipe();
+//     fetchComments();
+//   }, [id]);
+
+//   const handleFavorite = async () => {
+//     try {
+//       const token = localStorage.getItem("token");
+//       if (!token) {
+//         alert("You must be logged in to add favorites");
+//         return;
+//       }
+//       setAuthToken(token);
+//       await API.post(`/favorites/${id}`);
+//       alert("Added to favorites!");
+//     } catch (err) {
+//       console.error("Add favorite error:", err);
+//       alert(err.response?.data?.message || "Failed to add favorite");
+//     }
+//   };
+
+//   const handleDelete = async () => {
+//     if (!window.confirm("Are you sure you want to delete this recipe?")) return;
+//     try {
+//       const token = localStorage.getItem("token");
+//       setAuthToken(token);
+//       await API.delete(`/recipes/${id}`);
+//       alert("Recipe deleted successfully!");
+//       navigate("/");
+//     } catch (err) {
+//       console.error("Delete recipe error:", err);
+//       alert("Failed to delete recipe");
+//     }
+//   };
+
+//   const handleEdit = () => {
+//     navigate(`/edit-recipe/${id}`);
+//   };
+
+//   const handleAddComment = async () => {
+//     if (!newComment.trim()) return alert("Comment cannot be empty");
+//     try {
+//       const token = localStorage.getItem("token");
+//       if (!token) {
+//         alert("You must be logged in to comment");
+//         return;
+//       }
+//       setAuthToken(token);
+//       await API.post("/comments", { recipe_id: id, comment_text: newComment });
+//       setNewComment("");
+//       // Refresh comments
+//       const res = await API.get(`/comments/${id}`);
+//       setComments(res.data);
+//     } catch (err) {
+//       console.error("Add comment error:", err);
+//       alert(err.response?.data?.message || "Failed to add comment");
+//     }
+//   };
+
+//   if (!recipe) return <div className="p-6">Loading...</div>;
+
+//   const ingredients = recipe.ingredients || [];
+
+//   return (
+//     <div className="p-6 max-w-3xl mx-auto bg-gray-100 min-h-screen">
+//       <div className="bg-white p-6 rounded shadow-md">
+//         <h1 className="text-3xl font-bold mb-4">{recipe.title}</h1>
+//         <img
+//           src={recipe.image_url || "https://via.placeholder.com/600x400"}
+//           alt={recipe.title}
+//           className="w-full h-80 object-cover rounded mb-4"
+//         />
+//         <p className="mb-2"><strong>Cuisine:</strong> {recipe.cuisine_name || "N/A"}</p>
+//         {recipe.tags && recipe.tags.length > 0 && (
+//           <p className="mb-2">
+//             <strong>Diet:</strong> {recipe.tags.map(t => t.name).join(", ")}
+//           </p>
+//         )}
+//         <p className="mb-2"><strong>Cook Time:</strong> {recipe.cook_time || 0} mins</p>
+//         <p className="mb-2"><strong>Difficulty:</strong> {recipe.difficulty || "N/A"}</p>
+//         <p className="mb-4">{recipe.description}</p>
+
+//         <div className="flex gap-4 mb-6">
+//           <button onClick={handleFavorite} className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">
+//             Add to Favorites
+//           </button>
+//           <button onClick={handleEdit} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+//             Edit Recipe
+//           </button>
+//           <button onClick={handleDelete} className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">
+//             Delete Recipe
+//           </button>
+//         </div>
+
+//         <h2 className="text-2xl font-bold mb-2">Ingredients</h2>
+//         {ingredients.length > 0 ? (
+//           <ul className="list-disc list-inside mb-4">
+//             {ingredients.map((ing, index) => (
+//               <li key={index}>
+//                 {ing.quantity} {ing.unit_name || ""} - {ing.ingredient_name}
+//               </li>
+//             ))}
+//           </ul>
+//         ) : (
+//           <p>No ingredients added yet.</p>
+//         )}
+
+//         <h2 className="text-2xl font-bold mt-4 mb-2">Steps</h2>
+//         {recipe.steps && recipe.steps.length > 0 ? (
+//           <ol className="list-decimal list-inside mb-4">
+//             {recipe.steps.map((step, index) => (
+//               <li key={index}>{step.instruction}</li>
+//             ))}
+//           </ol>
+//         ) : (
+//           <p>No steps added yet.</p>
+//         )}
+
+//         {/* Comments Section */}
+//         <h2 className="text-2xl font-bold mt-4 mb-2">Comments</h2>
+//         {comments.length > 0 ? (
+//           <ul className="mb-4">
+//             {comments.map((c, index) => (
+//               <li key={index} className="mb-2 border-b pb-2">
+//                 <p className="font-semibold">{c.username}</p>
+//                 <p>{c.comment_text}</p>
+//                 <p className="text-sm text-gray-500">{new Date(c.created_at).toLocaleString()}</p>
+//               </li>
+//             ))}
+//           </ul>
+//         ) : (
+//           <p className="mb-4">No comments yet.</p>
+//         )}
+
+//         {/* Add Comment */}
+//         <div className="flex flex-col gap-2">
+//           <textarea
+//             value={newComment}
+//             onChange={(e) => setNewComment(e.target.value)}
+//             placeholder="Add your comment..."
+//             className="w-full p-2 border rounded"
+//           />
+//           <button
+//             onClick={handleAddComment}
+//             className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+//           >
+//             Submit Comment
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API, { setAuthToken } from "../api/api";
@@ -501,6 +824,11 @@ export default function RecipeDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+  const [averageRating, setAverageRating] = useState(0);
+  const [ratingCount, setRatingCount] = useState(0);
+  const [userRating, setUserRating] = useState(0);
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -512,7 +840,29 @@ export default function RecipeDetail() {
         alert("Failed to fetch recipe");
       }
     };
+
+    const fetchComments = async () => {
+      try {
+        const res = await API.get(`/comments/${id}`);
+        setComments(res.data);
+      } catch (err) {
+        console.error("Fetch comments error:", err);
+      }
+    };
+
+    const fetchRatings = async () => {
+      try {
+        const res = await API.get(`/ratings/${id}`);
+        setAverageRating(res.data.average_rating || 0);
+        setRatingCount(res.data.rating_count || 0);
+      } catch (err) {
+        console.error("Fetch rating error:", err);
+      }
+    };
+
     fetchRecipe();
+    fetchComments();
+    fetchRatings();
   }, [id]);
 
   const handleFavorite = async () => {
@@ -523,7 +873,7 @@ export default function RecipeDetail() {
         return;
       }
       setAuthToken(token);
-      await API.post(`/favorites/${id}`); // backend expects recipe_id in URL
+      await API.post(`/favorites/${id}`);
       alert("Added to favorites!");
     } catch (err) {
       console.error("Add favorite error:", err);
@@ -549,6 +899,44 @@ export default function RecipeDetail() {
     navigate(`/edit-recipe/${id}`);
   };
 
+  const handleAddComment = async () => {
+    if (!newComment.trim()) return alert("Comment cannot be empty");
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to comment");
+        return;
+      }
+      setAuthToken(token);
+      await API.post("/comments", { recipe_id: id, comment_text: newComment });
+      setNewComment("");
+      const res = await API.get(`/comments/${id}`);
+      setComments(res.data);
+    } catch (err) {
+      console.error("Add comment error:", err);
+      alert(err.response?.data?.message || "Failed to add comment");
+    }
+  };
+
+  const handleRatingChange = async (value) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to rate");
+        return;
+      }
+      setAuthToken(token);
+      await API.post("/ratings", { recipe_id: id, rating: value });
+      setUserRating(value);
+      const res = await API.get(`/ratings/${id}`);
+      setAverageRating(res.data.average_rating || 0);
+      setRatingCount(res.data.rating_count || 0);
+    } catch (err) {
+      console.error("Add rating error:", err);
+      alert(err.response?.data?.message || "Failed to add rating");
+    }
+  };
+
   if (!recipe) return <div className="p-6">Loading...</div>;
 
   const ingredients = recipe.ingredients || [];
@@ -570,7 +958,24 @@ export default function RecipeDetail() {
         )}
         <p className="mb-2"><strong>Cook Time:</strong> {recipe.cook_time || 0} mins</p>
         <p className="mb-2"><strong>Difficulty:</strong> {recipe.difficulty || "N/A"}</p>
-        <p className="mb-4">{recipe.description}</p>
+       <p className="mb-2">
+  <strong>Rating:</strong> {(Number(averageRating) || 0).toFixed(1)} / 5 ({ratingCount} {ratingCount === 1 ? "vote" : "votes"})
+</p>
+
+
+        {/* User Rating */}
+        <div className="flex items-center gap-1 mb-4">
+          {[1,2,3,4,5].map((num) => (
+            <span
+              key={num}
+              onClick={() => handleRatingChange(num)}
+              className={`cursor-pointer text-2xl ${num <= userRating ? "text-yellow-400" : "text-gray-400"}`}
+            >
+              ★
+            </span>
+          ))}
+          {userRating === 0 && <span className="ml-2 text-gray-600">Click a star to rate</span>}
+        </div>
 
         <div className="flex gap-4 mb-6">
           <button onClick={handleFavorite} className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">
@@ -607,6 +1012,38 @@ export default function RecipeDetail() {
         ) : (
           <p>No steps added yet.</p>
         )}
+
+        {/* Comments Section */}
+        <h2 className="text-2xl font-bold mt-4 mb-2">Comments</h2>
+        {comments.length > 0 ? (
+          <ul className="mb-4">
+            {comments.map((c, index) => (
+              <li key={index} className="mb-2 border-b pb-2">
+                <p className="font-semibold">{c.username}</p>
+                <p>{c.comment_text}</p>
+                <p className="text-sm text-gray-500">{new Date(c.created_at).toLocaleString()}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mb-4">No comments yet.</p>
+        )}
+
+        {/* Add Comment */}
+        <div className="flex flex-col gap-2">
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Add your comment..."
+            className="w-full p-2 border rounded"
+          />
+          <button
+            onClick={handleAddComment}
+            className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+          >
+            Submit Comment
+          </button>
+        </div>
       </div>
     </div>
   );
