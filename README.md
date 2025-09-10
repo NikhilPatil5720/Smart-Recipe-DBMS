@@ -36,12 +36,10 @@ Built with **React (Vite + TailwindCSS)** on the frontend and **Node.js + Expres
 ## ⚡ Installation & Setup
 
 ### 1. Clone Repository
-- bash
 - git clone https://github.com/your-username/smart-recipe-app.git
 - cd smart-recipe-app
 
 ### 2. Backend Setup
-- bash
 - Copy code
 - cd backend
 - npm install
@@ -57,39 +55,36 @@ Create a .env file inside backend/:
 - JWT_SECRET=your_jwt_secret
 
 Run backend:
-- bash
 - Copy code
-- npm start
+- npx nodemon index.js
 
 ### 3. Frontend Setup
-- bash
 - Copy code
 - cd frontend
 - npm install
 
 Run frontend:
-- bash
 - Copy code
 - npm run dev
 
 
 ### 📸 Screenshots
 
-- Home Page
+- ## 🏠 Home Page
 
-![Recipe Add Page](https://github.com/NikhilPatil5720/Smart-Recipe-DBMS/blob/main/RecipeHomepage.png?raw=true)
+![Home Page](https://github.com/NikhilPatil5720/Smart-Recipe-DBMS/blob/main/RecipeHomepage.png?raw=true)
 
-- Add Recipe
+- ## ➕ Add Recipe
 
 ![Recipe Add Page](https://github.com/NikhilPatil5720/Smart-Recipe-DBMS/blob/main/RecipeAddpage.png?raw=true)
 
-- Favorites
+- ## ❣️ Favorites
 
-![Recipe Add Page](https://github.com/NikhilPatil5720/Smart-Recipe-DBMS/blob/main/RecipeFavpage.png?raw=true)
+![Favorites Page](https://github.com/NikhilPatil5720/Smart-Recipe-DBMS/blob/main/RecipeFavpage.png?raw=true)
 
-- Detail Page
+- ##  📄 Detail Page
 
-  ![Recipe Add Page](https://github.com/NikhilPatil5720/Smart-Recipe-DBMS/blob/main/RecipeDetailpage.png?raw=true)
+  ![Detail Page](https://github.com/NikhilPatil5720/Smart-Recipe-DBMS/blob/main/RecipeDetailpage.png?raw=true)
 
 
 🤝 Contributing
