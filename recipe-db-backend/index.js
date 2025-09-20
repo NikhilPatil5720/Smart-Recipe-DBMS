@@ -57,6 +57,7 @@ const unitRoutes = require('./routes/unitRoutes');
 const tagRoutes = require('./routes/tagRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const ratingRoutes = require('./routes/ratingRoutes');
+const changePasswordRoute = require('./routes/changePassword');
 
 
 
@@ -87,6 +88,8 @@ app.use('/api/units', unitRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/ratings', ratingRoutes);
+app.use('/api', changePasswordRoute); // Add this line to include the change password route
+
 
 
 

@@ -282,58 +282,146 @@ exports.getRecipeById = (req, res) => {
 //     );
 // };
 
+
+
+// exports.updateRecipe = (req, res) => {
+//     const recipe_id = req.params.id;
+//     const { title, description, cuisine_id, servings, cook_time, difficulty, image_url, ingredients } = req.body;
+
+//     const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
+
+//     const updateRecipeQuery = `
+//         UPDATE Recipe
+//         SET title = ?, description = ?, cuisine_id = ?, servings = ?, cook_time = ?, difficulty = ?, image_url = ?
+//         WHERE recipe_id = ?
+//     `;
+
+//     db.query(updateRecipeQuery,
+//         [title, description, cuisine_id, servings || 1, cook_time, difficulty, image_url, recipe_id],
+//         (err, result) => {
+//             if (err) return res.status(500).json({ error: err });
+
+//             // Remove existing ingredients
+//             db.query('DELETE FROM RecipeIngredient WHERE recipe_id = ?', [recipe_id], (err2) => {
+//                 if (err2) return res.status(500).json({ error: err2 });
+
+//                 // Insert new ingredients
+//                 const insertPromises = safeIngredients.map((ing, index) => {
+//                     return new Promise((resolve, reject) => {
+//                         db.query(
+//                             'INSERT INTO RecipeIngredient (recipe_id, ingredient_id, quantity, sequence_no) VALUES (?, ?, ?, ?)',
+//                             [recipe_id, ing.ingredient_id, ing.quantity, index + 1],
+//                             (err3, result3) => {
+//                                 if (err3) reject(err3);
+//                                 else resolve(result3);
+//                             }
+//                         );
+//                     });
+//                 });
+
+//                 Promise.all(insertPromises)
+//                     .then(() => res.json({ message: 'Recipe and ingredients updated successfully' }))
+//                     .catch(err4 => res.status(500).json({ error: err4 }));
+//             });
+//         });
+// };
+
+
+
+// ➤ Update Recipe (only if current user owns it)
 exports.updateRecipe = (req, res) => {
     const recipe_id = req.params.id;
+    const user_id = req.userId; // from auth middleware
     const { title, description, cuisine_id, servings, cook_time, difficulty, image_url, ingredients } = req.body;
 
     const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
 
-    const updateRecipeQuery = `
-        UPDATE Recipe
-        SET title = ?, description = ?, cuisine_id = ?, servings = ?, cook_time = ?, difficulty = ?, image_url = ?
-        WHERE recipe_id = ?
-    `;
+    // ✅ First check ownership
+    db.query('SELECT user_id FROM Recipe WHERE recipe_id = ?', [recipe_id], (err, results) => {
+        if (err) return res.status(500).json({ error: err });
+        if (results.length === 0) return res.status(404).json({ message: "Recipe not found" });
 
-    db.query(updateRecipeQuery,
-        [title, description, cuisine_id, servings || 1, cook_time, difficulty, image_url, recipe_id],
-        (err, result) => {
-            if (err) return res.status(500).json({ error: err });
+        if (results[0].user_id !== user_id) {
+            return res.status(403).json({ message: "You are not allowed to update this recipe" });
+        }
 
-            // Remove existing ingredients
-            db.query('DELETE FROM RecipeIngredient WHERE recipe_id = ?', [recipe_id], (err2) => {
-                if (err2) return res.status(500).json({ error: err2 });
+        // ✅ Update Recipe if user is owner
+        const updateRecipeQuery = `
+            UPDATE Recipe
+            SET title = ?, description = ?, cuisine_id = ?, servings = ?, cook_time = ?, difficulty = ?, image_url = ?
+            WHERE recipe_id = ?
+        `;
 
-                // Insert new ingredients
-                const insertPromises = safeIngredients.map((ing, index) => {
-                    return new Promise((resolve, reject) => {
-                        db.query(
-                            'INSERT INTO RecipeIngredient (recipe_id, ingredient_id, quantity, sequence_no) VALUES (?, ?, ?, ?)',
-                            [recipe_id, ing.ingredient_id, ing.quantity, index + 1],
-                            (err3, result3) => {
-                                if (err3) reject(err3);
-                                else resolve(result3);
-                            }
-                        );
+        db.query(updateRecipeQuery,
+            [title, description, cuisine_id, servings || 1, cook_time, difficulty, image_url, recipe_id],
+            (err, result) => {
+                if (err) return res.status(500).json({ error: err });
+
+                // Delete old ingredients
+                db.query('DELETE FROM RecipeIngredient WHERE recipe_id = ?', [recipe_id], (err2) => {
+                    if (err2) return res.status(500).json({ error: err2 });
+
+                    // Insert new ingredients
+                    const insertPromises = safeIngredients.map((ing, index) => {
+                        return new Promise((resolve, reject) => {
+                            db.query(
+                                'INSERT INTO RecipeIngredient (recipe_id, ingredient_id, quantity, sequence_no) VALUES (?, ?, ?, ?)',
+                                [recipe_id, ing.ingredient_id, ing.quantity, index + 1],
+                                (err3, result3) => {
+                                    if (err3) reject(err3);
+                                    else resolve(result3);
+                                }
+                            );
+                        });
                     });
+
+                    Promise.all(insertPromises)
+                        .then(() => res.json({ message: 'Recipe and ingredients updated successfully' }))
+                        .catch(err4 => res.status(500).json({ error: err4 }));
                 });
-
-                Promise.all(insertPromises)
-                    .then(() => res.json({ message: 'Recipe and ingredients updated successfully' }))
-                    .catch(err4 => res.status(500).json({ error: err4 }));
             });
-        });
+    });
 };
-
 
 
 // ➤ Delete Recipe
+// exports.deleteRecipe = (req, res) => {
+//     const recipeId = req.params.id;
+
+//     const query = `DELETE FROM Recipe WHERE recipe_id = ?`;
+
+//     db.query(query, [recipeId], (err, result) => {
+//         if (err) return res.status(500).json({ error: err });
+//         res.json({ message: 'Recipe deleted successfully' });
+//     });
+// };
+
+
+
+
+// ➤ Delete Recipe (only if current user owns it)
 exports.deleteRecipe = (req, res) => {
     const recipeId = req.params.id;
+    const user_id = req.userId; // from auth middleware
 
-    const query = `DELETE FROM Recipe WHERE recipe_id = ?`;
-
-    db.query(query, [recipeId], (err, result) => {
+    // ✅ First check ownership
+    db.query('SELECT user_id FROM Recipe WHERE recipe_id = ?', [recipeId], (err, results) => {
         if (err) return res.status(500).json({ error: err });
-        res.json({ message: 'Recipe deleted successfully' });
+        if (results.length === 0) return res.status(404).json({ message: "Recipe not found" });
+
+        if (results[0].user_id !== user_id) {
+            return res.status(403).json({ message: "You are not allowed to delete this recipe" });
+        }
+
+        // ✅ Delete if user is owner
+        const query = `DELETE FROM Recipe WHERE recipe_id = ?`;
+        db.query(query, [recipeId], (err, result) => {
+            if (err) return res.status(500).json({ error: err });
+            res.json({ message: 'Recipe deleted successfully' });
+        });
     });
 };
+
+
+
+

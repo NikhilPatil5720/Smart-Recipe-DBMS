@@ -31,6 +31,35 @@ exports.signup = (req, res) => {
 };
 
 // ➤ Login Controller
+// exports.login = (req, res) => {
+//     const { email, password } = req.body;
+
+//     db.query('SELECT * FROM User WHERE email = ?', [email], (err, result) => {
+//         if (err) return res.status(500).json({ error: err });
+
+//         if (result.length === 0)
+//             return res.status(404).json({ message: 'User not found' });
+
+//         const user = result[0];
+
+//         // Compare password
+//         const isPasswordValid = bcrypt.compareSync(password, user.password);
+
+//         if (!isPasswordValid)
+//             return res.status(401).json({ message: 'Incorrect password' });
+
+//         // Create JWT Token
+//         const token = jwt.sign(
+//             { userId: user.user_id },
+//             '123abc',  // Replace with strong secret key in production
+//             { expiresIn: '1h' }
+//         );
+
+//         return res.json({ token, userId: user.user_id });
+//     });
+// };
+
+
 exports.login = (req, res) => {
     const { email, password } = req.body;
 
@@ -55,6 +84,14 @@ exports.login = (req, res) => {
             { expiresIn: '1h' }
         );
 
-        return res.json({ token, userId: user.user_id });
+        // Send token + user info
+        return res.json({
+            token,
+            user: {
+                user_id: user.user_id,
+                username: user.username,
+                email: user.email
+            }
+        });
     });
 };
