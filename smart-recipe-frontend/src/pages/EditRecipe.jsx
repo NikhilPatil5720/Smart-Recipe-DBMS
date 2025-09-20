@@ -1100,6 +1100,306 @@
 
 
 
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import API, { setAuthToken } from "../api/api";
+
+// export default function EditRecipe() {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+
+//   const [formData, setFormData] = useState({
+//     title: "",
+//     description: "",
+//     cuisine_id: "",
+//     cook_time: "",
+//     difficulty: "",
+//     image_url: "",
+//     ingredients: [], // { ingredient_id, quantity, unit_id }
+//   });
+
+//   const [newIngredient, setNewIngredient] = useState({
+//     ingredient_id: "",
+//     quantity: "",
+//     unit_id: "",
+//   });
+
+//   const [cuisines, setCuisines] = useState([]);
+//   const [allIngredients, setAllIngredients] = useState([]);
+//   const [allUnits, setAllUnits] = useState([]);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const [recipeRes, cuisinesRes, ingredientsRes, unitsRes] = await Promise.all([
+//           API.get(`/recipes/${id}`),
+//           API.get("/cuisines"),
+//           API.get("/ingredients"),
+//           API.get("/units"),
+//         ]);
+
+//         setFormData({
+//           ...recipeRes.data,
+//           cuisine_id: recipeRes.data.cuisine_id || "",
+//           ingredients: recipeRes.data.ingredients.map((ing) => ({
+//             ingredient_id: ing.ingredient_id,
+//             quantity: ing.quantity,
+//             unit_id: ing.unit_id || 1, // Default unit_id if not provided
+//           })),
+//         });
+
+//         setCuisines(cuisinesRes.data);
+//         setAllIngredients(ingredientsRes.data);
+//         setAllUnits(unitsRes.data);
+//       } catch (err) {
+//         console.error("Fetch data error:", err);
+//         alert("Failed to fetch recipe or supporting data");
+//       }
+//     };
+
+//     fetchData();
+//   }, [id]);
+
+//   const handleChange = (e) => {
+//     setFormData({ ...formData, [e.target.name]: e.target.value });
+//   };
+
+//   const handleIngredientChange = (index, e) => {
+//     const updated = [...formData.ingredients];
+//     updated[index][e.target.name] = e.target.value;
+//     setFormData({ ...formData, ingredients: updated });
+//   };
+
+//   const addIngredientToList = () => {
+//     if (!newIngredient.ingredient_id || !newIngredient.quantity || !newIngredient.unit_id) {
+//       return alert("Please select ingredient, quantity, and unit");
+//     }
+
+//     setFormData({
+//       ...formData,
+//       ingredients: [...formData.ingredients, { ...newIngredient }],
+//     });
+
+//     setNewIngredient({ ingredient_id: "", quantity: "", unit_id: "" });
+//   };
+
+//   const removeIngredientField = (index) => {
+//     const updated = formData.ingredients.filter((_, i) => i !== index);
+//     setFormData({ ...formData, ingredients: updated });
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const token = localStorage.getItem("token");
+//       setAuthToken(token);
+
+//       await API.put(`/recipes/${id}`, formData);
+
+//       alert("Recipe updated successfully!");
+//       navigate(`/recipe/${id}`);
+//     } catch (err) {
+//       console.error("Update recipe error:", err);
+//       alert(err.response?.data?.message || "Failed to update recipe");
+//     }
+//   };
+
+//   return (
+//     <div className="p-6 flex justify-center items-start min-h-screen bg-gray-100">
+//       <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-lg">
+//         <h2 className="text-2xl font-bold mb-6 text-center">Edit Recipe</h2>
+
+//         <input
+//           type="text"
+//           name="title"
+//           placeholder="Recipe Title"
+//           value={formData.title}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         />
+
+//         <textarea
+//           name="description"
+//           placeholder="Description"
+//           value={formData.description}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         />
+
+//         <select
+//           name="cuisine_id"
+//           value={formData.cuisine_id}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         >
+//           <option value="">Select Cuisine</option>
+//           {cuisines.map((c) => (
+//             <option key={c.cuisine_id} value={c.cuisine_id}>
+//               {c.name}
+//             </option>
+//           ))}
+//         </select>
+
+//         <input
+//           type="number"
+//           name="cook_time"
+//           placeholder="Cook Time (minutes)"
+//           value={formData.cook_time}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         />
+
+//         <select
+//           name="difficulty"
+//           value={formData.difficulty}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         >
+//           <option value="">Select Difficulty</option>
+//           <option value="Easy">Easy</option>
+//           <option value="Medium">Medium</option>
+//           <option value="Hard">Hard</option>
+//         </select>
+
+//         <input
+//           type="text"
+//           name="image_url"
+//           placeholder="Image URL (optional)"
+//           value={formData.image_url}
+//           onChange={handleChange}
+//           className="w-full mb-6 p-3 border rounded"
+//         />
+
+//         <h3 className="text-xl font-semibold mb-2">Ingredients</h3>
+
+//         {formData.ingredients.map((ing, index) => (
+//           <div key={index} className="flex gap-2 mb-2">
+//             <select
+//               name="ingredient_id"
+//               value={ing.ingredient_id}
+//               onChange={(e) => handleIngredientChange(index, e)}
+//               className="flex-1 p-2 border rounded"
+//               required
+//             >
+//               <option value="">Select Ingredient</option>
+//               {allIngredients.map((ingOpt) => (
+//                 <option key={ingOpt.ingredient_id} value={ingOpt.ingredient_id}>
+//                   {ingOpt.name}
+//                 </option>
+//               ))}
+//             </select>
+
+//             <input
+//               type="number"
+//               name="quantity"
+//               placeholder="Quantity"
+//               value={ing.quantity}
+//               onChange={(e) => handleIngredientChange(index, e)}
+//               className="flex-1 p-2 border rounded"
+//               required
+//             />
+
+//             <select
+//               name="unit_id"
+//               value={ing.unit_id}
+//               onChange={(e) => handleIngredientChange(index, e)}
+//               className="flex-1 p-2 border rounded"
+//               required
+//             >
+//               <option value="">Select Unit</option>
+//               {allUnits.map((unit) => (
+//                 <option key={unit.unit_id} value={unit.unit_id}>
+//                   {unit.name}
+//                 </option>
+//               ))}
+//             </select>
+
+//             <button
+//               type="button"
+//               onClick={() => removeIngredientField(index)}
+//               className="bg-red-500 text-white px-3 rounded hover:bg-red-600"
+//             >
+//               X
+//             </button>
+//           </div>
+//         ))}
+
+//         <div className="flex gap-2 mt-2">
+//           <select
+//             value={newIngredient.ingredient_id}
+//             onChange={(e) =>
+//               setNewIngredient({ ...newIngredient, ingredient_id: e.target.value })
+//             }
+//             className="flex-1 p-2 border rounded"
+//           >
+//             <option value="">Select Ingredient</option>
+//             {allIngredients.map((ingOpt) => (
+//               <option key={ingOpt.ingredient_id} value={ingOpt.ingredient_id}>
+//                 {ingOpt.name}
+//               </option>
+//             ))}
+//           </select>
+
+//           <input
+//             type="number"
+//             placeholder="Quantity"
+//             value={newIngredient.quantity}
+//             onChange={(e) =>
+//               setNewIngredient({ ...newIngredient, quantity: e.target.value })
+//             }
+//             className="flex-1 p-2 border rounded"
+//           />
+
+//           <select
+//             value={newIngredient.unit_id}
+//             onChange={(e) =>
+//               setNewIngredient({ ...newIngredient, unit_id: e.target.value })
+//             }
+//             className="flex-1 p-2 border rounded"
+//           >
+//             <option value="">Select Unit</option>
+//             {allUnits.map((unit) => (
+//               <option key={unit.unit_id} value={unit.unit_id}>
+//                 {unit.name}
+//               </option>
+//             ))}
+//           </select>
+
+//           <button
+//             type="button"
+//             onClick={addIngredientToList}
+//             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+//           >
+//             Add
+//           </button>
+//         </div>
+
+//         <button
+//           type="submit"
+//           className="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600"
+//         >
+//           Update Recipe
+//         </button>
+//       </form>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+//new verison
+
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API, { setAuthToken } from "../api/api";
@@ -1115,41 +1415,42 @@ export default function EditRecipe() {
     cook_time: "",
     difficulty: "",
     image_url: "",
-    ingredients: [], // { ingredient_id, quantity, unit_id }
+    ingredients: [], // { ingredient_id, ingredient_name, quantity, unit_id }
   });
 
   const [newIngredient, setNewIngredient] = useState({
-    ingredient_id: "",
+    ingredient_name: "",
     quantity: "",
     unit_id: "",
   });
 
   const [cuisines, setCuisines] = useState([]);
-  const [allIngredients, setAllIngredients] = useState([]);
   const [allUnits, setAllUnits] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [recipeRes, cuisinesRes, ingredientsRes, unitsRes] = await Promise.all([
+        const [recipeRes, cuisinesRes, unitsRes] = await Promise.all([
           API.get(`/recipes/${id}`),
           API.get("/cuisines"),
-          API.get("/ingredients"),
           API.get("/units"),
         ]);
+
+        // Map ingredients to include ingredient_name and unit_id
+        const ingredients = recipeRes.data.ingredients.map((ing) => ({
+          ingredient_id: ing.ingredient_id,
+          ingredient_name: ing.ingredient_name , // autofill existing name
+          quantity: ing.quantity,
+          unit_id: ing.ingredient_unit_id , // autofill existing unit
+        }));
 
         setFormData({
           ...recipeRes.data,
           cuisine_id: recipeRes.data.cuisine_id || "",
-          ingredients: recipeRes.data.ingredients.map((ing) => ({
-            ingredient_id: ing.ingredient_id,
-            quantity: ing.quantity,
-            unit_id: ing.unit_id || 1, // Default unit_id if not provided
-          })),
+          ingredients: ingredients,
         });
 
         setCuisines(cuisinesRes.data);
-        setAllIngredients(ingredientsRes.data);
         setAllUnits(unitsRes.data);
       } catch (err) {
         console.error("Fetch data error:", err);
@@ -1171,16 +1472,16 @@ export default function EditRecipe() {
   };
 
   const addIngredientToList = () => {
-    if (!newIngredient.ingredient_id || !newIngredient.quantity || !newIngredient.unit_id) {
-      return alert("Please select ingredient, quantity, and unit");
+    if (!newIngredient.ingredient_name || !newIngredient.quantity || !newIngredient.unit_id) {
+      return alert("Please enter ingredient name, quantity, and unit");
     }
 
     setFormData({
       ...formData,
-      ingredients: [...formData.ingredients, { ...newIngredient }],
+      ingredients: [...formData.ingredients, { ...newIngredient, ingredient_id: null }],
     });
 
-    setNewIngredient({ ingredient_id: "", quantity: "", unit_id: "" });
+    setNewIngredient({ ingredient_name: "", quantity: "", unit_id: "" });
   };
 
   const removeIngredientField = (index) => {
@@ -1189,20 +1490,50 @@ export default function EditRecipe() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem("token");
-      setAuthToken(token);
+  e.preventDefault();
+  try {
+    const token = localStorage.getItem("token");
+    setAuthToken(token);
 
-      await API.put(`/recipes/${id}`, formData);
+    // 1️⃣ Separate new ingredients (typed manually) from existing
+    const newIngredients = formData.ingredients.filter((ing) => !ing.ingredient_id);
+    const existingIngredients = formData.ingredients.filter((ing) => ing.ingredient_id);
 
-      alert("Recipe updated successfully!");
-      navigate(`/recipe/${id}`);
-    } catch (err) {
-      console.error("Update recipe error:", err);
-      alert(err.response?.data?.message || "Failed to update recipe");
+    // 2️⃣ Create new ingredients in backend
+    const createdIngredients = [];
+    for (const ing of newIngredients) {
+      // Make API call to create ingredient
+      const res = await API.post("/ingredients", { name: ing.ingredient_name });
+      createdIngredients.push({
+        ...ing,
+        ingredient_id: res.data.ingredient_id, // assign real id
+      });
     }
-  };
+
+    // 3️⃣ Combine existing + newly created ingredients
+    const allIngredients = [...existingIngredients, ...createdIngredients];
+
+    // 4️⃣ Prepare payload for recipe update
+    const payload = {
+      ...formData,
+      ingredients: allIngredients.map((ing) => ({
+        ingredient_id: ing.ingredient_id,
+        quantity: ing.quantity,
+        unit_id: ing.unit_id,
+      })),
+    };
+
+    // 5️⃣ Update recipe
+    await API.put(`/recipes/${id}`, payload);
+
+    alert("Recipe updated successfully!");
+    navigate(`/recipe/${id}`);
+  } catch (err) {
+    console.error("Update recipe error:", err);
+    alert(err.response?.data?.message || "Failed to update recipe");
+  }
+};
+
 
   return (
     <div className="p-6 flex justify-center items-start min-h-screen bg-gray-100">
@@ -1279,20 +1610,15 @@ export default function EditRecipe() {
 
         {formData.ingredients.map((ing, index) => (
           <div key={index} className="flex gap-2 mb-2">
-            <select
-              name="ingredient_id"
-              value={ing.ingredient_id}
+            <input
+              type="text"
+              name="ingredient_name"
+              value={ing.ingredient_name}
               onChange={(e) => handleIngredientChange(index, e)}
+              placeholder="Ingredient Name"
               className="flex-1 p-2 border rounded"
               required
-            >
-              <option value="">Select Ingredient</option>
-              {allIngredients.map((ingOpt) => (
-                <option key={ingOpt.ingredient_id} value={ingOpt.ingredient_id}>
-                  {ingOpt.name}
-                </option>
-              ))}
-            </select>
+            />
 
             <input
               type="number"
@@ -1330,20 +1656,15 @@ export default function EditRecipe() {
         ))}
 
         <div className="flex gap-2 mt-2">
-          <select
-            value={newIngredient.ingredient_id}
+          <input
+            type="text"
+            placeholder="Ingredient Name"
+            value={newIngredient.ingredient_name}
             onChange={(e) =>
-              setNewIngredient({ ...newIngredient, ingredient_id: e.target.value })
+              setNewIngredient({ ...newIngredient, ingredient_name: e.target.value })
             }
             className="flex-1 p-2 border rounded"
-          >
-            <option value="">Select Ingredient</option>
-            {allIngredients.map((ingOpt) => (
-              <option key={ingOpt.ingredient_id} value={ingOpt.ingredient_id}>
-                {ingOpt.name}
-              </option>
-            ))}
-          </select>
+          />
 
           <input
             type="number"
@@ -1381,7 +1702,7 @@ export default function EditRecipe() {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600"
+          className="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600 mt-4"
         >
           Update Recipe
         </button>
@@ -1389,3 +1710,329 @@ export default function EditRecipe() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
+// import API, { setAuthToken } from "../api/api";
+
+// export default function EditRecipe() {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+
+//   const [formData, setFormData] = useState({
+//     title: "",
+//     description: "",
+//     cuisine_id: "",
+//     cook_time: "",
+//     difficulty: "",
+//     image_url: "",
+//     ingredients: [], // { ingredient_id, ingredient_name, quantity, unit_id }
+//   });
+
+//   const [newIngredient, setNewIngredient] = useState({
+//     ingredient_name: "",
+//     quantity: "",
+//     unit_id: "",
+//   });
+
+//   const [cuisines, setCuisines] = useState([]);
+//   const [allIngredients, setAllIngredients] = useState([]);
+//   const [allUnits, setAllUnits] = useState([]);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const [recipeRes, cuisinesRes, ingredientsRes, unitsRes] = await Promise.all([
+//           API.get(`/recipes/${id}`),
+//           API.get("/cuisines"),
+//           API.get("/ingredients"),
+//           API.get("/units"),
+//         ]);
+
+//         // Prefill existing ingredients
+//         setFormData({
+//           ...recipeRes.data,
+//           cuisine_id: recipeRes.data.cuisine_id || "",
+//           ingredients: recipeRes.data.ingredients.map((ing) => ({
+//             ingredient_id: ing.ingredient_id,
+//             ingredient_name: ing.name, // store name for display
+//             quantity: ing.quantity,
+//             unit_id: ing.unit_id || 1,
+//           })),
+//         });
+
+//         setCuisines(cuisinesRes.data);
+//         setAllIngredients(ingredientsRes.data);
+//         setAllUnits(unitsRes.data);
+//       } catch (err) {
+//         console.error("Fetch data error:", err);
+//         alert("Failed to fetch recipe or supporting data");
+//       }
+//     };
+
+//     fetchData();
+//   }, [id]);
+
+//   const handleChange = (e) => {
+//     setFormData({ ...formData, [e.target.name]: e.target.value });
+//   };
+
+//   const handleIngredientChange = (index, e) => {
+//     const updated = [...formData.ingredients];
+//     const { name, value } = e.target;
+//     updated[index][name] = value;
+//     setFormData({ ...formData, ingredients: updated });
+//   };
+
+//   const addIngredientToList = () => {
+//     if (!newIngredient.ingredient_name || !newIngredient.quantity || !newIngredient.unit_id) {
+//       return alert("Please enter ingredient name, quantity, and unit");
+//     }
+
+//     setFormData({
+//       ...formData,
+//       ingredients: [...formData.ingredients, { ...newIngredient }],
+//     });
+
+//     setNewIngredient({ ingredient_name: "", quantity: "", unit_id: "" });
+//   };
+
+//   const removeIngredientField = (index) => {
+//     const updated = formData.ingredients.filter((_, i) => i !== index);
+//     setFormData({ ...formData, ingredients: updated });
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const token = localStorage.getItem("token");
+//       setAuthToken(token);
+
+//       // Separate new ingredients (typed manually) vs existing
+//       const newIngredients = formData.ingredients.filter((ing) => !ing.ingredient_id);
+//       const existingIngredients = formData.ingredients.filter((ing) => ing.ingredient_id);
+
+//       // Create new ingredients in backend
+//       const createdIngredients = [];
+//       for (const ing of newIngredients) {
+//         const res = await API.post("/ingredients", { name: ing.ingredient_name });
+//         createdIngredients.push({
+//           ...ing,
+//           ingredient_id: res.data.ingredient_id,
+//         });
+//       }
+
+//       const allIngredientsForUpdate = [...existingIngredients, ...createdIngredients];
+
+//       const payload = {
+//         ...formData,
+//         ingredients: allIngredientsForUpdate.map((ing) => ({
+//           ingredient_id: ing.ingredient_id,
+//           quantity: ing.quantity,
+//           unit_id: ing.unit_id,
+//         })),
+//       };
+
+//       await API.put(`/recipes/${id}`, payload);
+
+//       alert("Recipe updated successfully!");
+//       navigate(`/recipe/${id}`);
+//     } catch (err) {
+//       console.error("Update recipe error:", err);
+//       alert(err.response?.data?.message || "Failed to update recipe");
+//     }
+//   };
+
+//   return (
+//     <div className="p-6 flex justify-center items-start min-h-screen bg-gray-100">
+//       <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-lg">
+//         <h2 className="text-2xl font-bold mb-6 text-center">Edit Recipe</h2>
+
+//         <input
+//           type="text"
+//           name="title"
+//           placeholder="Recipe Title"
+//           value={formData.title}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         />
+
+//         <textarea
+//           name="description"
+//           placeholder="Description"
+//           value={formData.description}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         />
+
+//         <select
+//           name="cuisine_id"
+//           value={formData.cuisine_id}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         >
+//           <option value="">Select Cuisine</option>
+//           {cuisines.map((c) => (
+//             <option key={c.cuisine_id} value={c.cuisine_id}>
+//               {c.name}
+//             </option>
+//           ))}
+//         </select>
+
+//         <input
+//           type="number"
+//           name="cook_time"
+//           placeholder="Cook Time (minutes)"
+//           value={formData.cook_time}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         />
+
+//         <select
+//           name="difficulty"
+//           value={formData.difficulty}
+//           onChange={handleChange}
+//           className="w-full mb-4 p-3 border rounded"
+//           required
+//         >
+//           <option value="">Select Difficulty</option>
+//           <option value="Easy">Easy</option>
+//           <option value="Medium">Medium</option>
+//           <option value="Hard">Hard</option>
+//         </select>
+
+//         <input
+//           type="text"
+//           name="image_url"
+//           placeholder="Image URL (optional)"
+//           value={formData.image_url}
+//           onChange={handleChange}
+//           className="w-full mb-6 p-3 border rounded"
+//         />
+
+//         <h3 className="text-xl font-semibold mb-2">Ingredients</h3>
+
+//         {formData.ingredients.map((ing, index) => (
+//   <div key={index} className="flex gap-2 mb-2">
+//     <select
+//       name="ingredient_id"
+//       value={ing.ingredient_id}
+//       onChange={(e) => handleIngredientChange(index, e)}
+//       className="flex-1 p-2 border rounded"
+//       required
+//     >
+//       <option value="">Select Ingredient</option>
+//       {allIngredients.map((ingOpt) => (
+//         <option key={ingOpt.ingredient_id} value={ingOpt.ingredient_id}>
+//           {ingOpt.name}
+//         </option>
+//       ))}
+//     </select>
+//     <input
+//       type="number"
+//       name="quantity"
+//       placeholder="Quantity"
+//       value={ing.quantity}
+//       onChange={(e) => handleIngredientChange(index, e)}
+//       className="flex-1 p-2 border rounded"
+//       required
+//     />
+//     <select
+//       name="unit_id"
+//       value={ing.unit_id}
+//       onChange={(e) => handleIngredientChange(index, e)}
+//       className="flex-1 p-2 border rounded"
+//       required
+//     >
+//       <option value="">Select Unit</option>
+//       {allUnits.map((unit) => (
+//         <option key={unit.unit_id} value={unit.unit_id}>
+//           {unit.name}
+//         </option>
+//       ))}
+//     </select>
+//     <button
+//       type="button"
+//       onClick={() => removeIngredientField(index)}
+//       className="bg-red-500 text-white px-3 rounded hover:bg-red-600"
+//     >
+//       X
+//     </button>
+//   </div>
+// ))}
+
+
+//         <div className="flex gap-2 mt-2">
+//   <input
+//     type="text"
+//     placeholder="New Ingredient Name"
+//     value={newIngredient.ingredient_name}
+//     onChange={(e) =>
+//       setNewIngredient({ ...newIngredient, ingredient_name: e.target.value })
+//     }
+//     className="flex-1 p-2 border rounded"
+//   />
+//   <input
+//     type="number"
+//     placeholder="Quantity"
+//     value={newIngredient.quantity}
+//     onChange={(e) =>
+//       setNewIngredient({ ...newIngredient, quantity: e.target.value })
+//     }
+//     className="flex-1 p-2 border rounded"
+//   />
+//   <select
+//     value={newIngredient.unit_id}
+//     onChange={(e) =>
+//       setNewIngredient({ ...newIngredient, unit_id: e.target.value })
+//     }
+//     className="flex-1 p-2 border rounded"
+//   >
+//     <option value="">Select Unit</option>
+//     {allUnits.map((unit) => (
+//       <option key={unit.unit_id} value={unit.unit_id}>
+//         {unit.name}
+//       </option>
+//     ))}
+//   </select>
+//   <button
+//     type="button"
+//     onClick={addIngredientToList}
+//     className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+//   >
+//     Add
+//   </button>
+// </div>
+
+
+//         <button
+//           type="submit"
+//           className="w-full bg-blue-500 text-white py-3 rounded hover:bg-blue-600 mt-4"
+//         >
+//           Update Recipe
+//         </button>
+//       </form>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
