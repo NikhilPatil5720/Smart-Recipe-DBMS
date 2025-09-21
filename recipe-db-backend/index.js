@@ -39,7 +39,7 @@
 
 
 
-
+// Full code with routes and middleware
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -88,7 +88,7 @@ app.use('/api/units', unitRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/ratings', ratingRoutes);
-app.use('/api', changePasswordRoute); // Add this line to include the change password route
+app.use('/api', changePasswordRoute);
 
 
 
