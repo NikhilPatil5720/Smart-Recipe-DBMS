@@ -5,11 +5,18 @@ exports.addRating = (req, res) => {
     const user_id = req.userId;  // From auth middleware
     const { recipe_id, rating } = req.body;
 
+    // const query = `
+    //     INSERT INTO Rating (recipe_id, user_id, rating)
+    //     VALUES (?, ?, ?)
+    //     ON DUPLICATE KEY UPDATE rating = VALUES(rating), rated_at = CURRENT_TIMESTAMP
+    // `;
+
+
     const query = `
-        INSERT INTO Rating (recipe_id, user_id, rating)
-        VALUES (?, ?, ?)
-        ON DUPLICATE KEY UPDATE rating = VALUES(rating), rated_at = CURRENT_TIMESTAMP
-    `;
+    INSERT INTO Rating (recipe_id, user_id, rating)
+    VALUES (?, ?, ?)
+    ON DUPLICATE KEY UPDATE rating = VALUES(rating), rated_at = CURRENT_TIMESTAMP
+`;
 
     db.query(query, [recipe_id, user_id, rating], (err, result) => {
         if (err) return res.status(500).json({ error: err });
